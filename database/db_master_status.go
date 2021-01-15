@@ -5,7 +5,7 @@ import "time"
 // MasterStatus is an entity that directly communicate with the MasterStatus table in the database
 type MasterStatus struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
-	Category   uint      `gorm:"not null" json:"category"`
+	Category   uint      `gorm:"not null" json:"category"` // kategori status (status kost , status bayar , status dll)
 	StatusDesc string    `gorm:"not null" json:"status_desc"`
 	IsActive   bool      `gorm:"not null;default:true" json:"is_active"`
 	Created    time.Time `gorm:"type:datetime" json:"created"`

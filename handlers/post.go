@@ -12,7 +12,7 @@ import (
 func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request) {
 
 	// get the book via context
-	bookReq := r.Context().Value(KeyBook{}).(*entities.TransactionKostBook)
+	bookReq := r.Context().Value(KeyBook{}).(*entities.TransactionRoomBook)
 
 	// get the current user login
 	var currentUser *database.MasterUser

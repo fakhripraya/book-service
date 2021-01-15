@@ -106,7 +106,7 @@ func (bookHandler *BookHandler) MiddlewareParseBookRequest(next http.Handler) ht
 		rw.Header().Add("Content-Type", "application/json")
 
 		// create the book instance
-		book := &entities.TransactionKostBook{}
+		book := &entities.TransactionRoomBook{}
 
 		// parse the request body to the given instance
 		err := data.FromJSON(book, r.Body)

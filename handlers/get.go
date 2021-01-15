@@ -8,7 +8,7 @@ import (
 	"github.com/fakhripraya/book-service/database"
 )
 
-// GetMyBook is a method to fetch the given book info
+// GetMyBook is a method to fetch the given room info
 func (bookHandler *BookHandler) GetMyBook(rw http.ResponseWriter, r *http.Request) {
 
 	// get the current user login
@@ -20,8 +20,8 @@ func (bookHandler *BookHandler) GetMyBook(rw http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	// look for the current kost book in the db
-	var myKost database.DBTransactionKostBook
+	// look for the current room book in the db
+	var myKost database.DBTransactionRoomBook
 	if err := config.DB.Where("booker_id = ?", currentUser.ID).First(&myKost).Error; err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		data.ToJSON(&GenericError{Message: err.Error()}, rw)
@@ -55,7 +55,7 @@ func (bookHandler *BookHandler) GetMyBookList(rw http.ResponseWriter, r *http.Re
 	}
 
 	// look for the current book list in the db
-	var kostList database.DBTransactionKostBook
+	var kostList database.DBTransactionRoomBook
 	if err := config.DB.Where("booker_id = ?", currentUser.ID).Find(&kostList).Error; err != nil {
 		rw.WriteHeader(http.StatusBadRequest)
 		data.ToJSON(&GenericError{Message: err.Error()}, rw)
