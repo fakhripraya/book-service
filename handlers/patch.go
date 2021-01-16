@@ -40,7 +40,7 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 		}
 
 		// Status 1 = approved by owner
-		// Status 3 = reject
+		// Status 3 = rejected
 		if approvalReq.FlagApproval == true {
 			targetBook.Status = 1
 			targetBook.Modified = time.Now().Local()
@@ -69,6 +69,8 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 
 		return
 	}
+
+	// TODO: send notif
 
 	rw.WriteHeader(http.StatusOK)
 	if approvalReq.FlagApproval == true {
@@ -122,7 +124,7 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 		}
 
 		// Status 2 = approved by user
-		// Status 3 = reject
+		// Status 3 = rejected
 		if approvalReq.FlagApproval == true {
 			targetBook.Status = 2
 			targetBook.Modified = time.Now().Local()
@@ -179,6 +181,8 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 
 		return
 	}
+
+	// TODO: send notif
 
 	rw.WriteHeader(http.StatusOK)
 	if approvalReq.FlagApproval == true {
