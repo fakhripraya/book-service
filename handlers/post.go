@@ -43,7 +43,7 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 		newBook.RoomID = bookReq.RoomID
 		newBook.RoomDetailID = bookReq.RoomDetailID
 		newBook.PeriodID = bookReq.PeriodID
-		newBook.Status = 0 // TODO: create a documented status later
+		newBook.Status = 0 // status 0 = baru // TODO: create a documented status later
 		newBook.BookCode, dbErr = bookHandler.book.GenerateCode("K", kostTarget.Country[0:1], kostTarget.City[0:1])
 
 		if dbErr != nil {

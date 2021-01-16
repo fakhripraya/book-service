@@ -10,6 +10,9 @@ import (
 // KeyBook is a key used for the Book object in the context
 type KeyBook struct{}
 
+// KeyApproval is a key used for the Approval object in the context
+type KeyApproval struct{}
+
 // BookHandler is a handler struct for book changes
 type BookHandler struct {
 	logger hclog.Logger

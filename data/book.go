@@ -104,7 +104,7 @@ func (book *Book) AddTransaction(currentUser *database.MasterUser, ReferenceID, 
 
 		newTransaction.TrxReferenceID = ReferenceID
 		newTransaction.TrxCategory = 0 // kategori booking
-		newTransaction.PaidOff = payment
+		newTransaction.PaidOff = 0     // paid off masih 0 karna transaksi baru
 		newTransaction.MustPay = mustPay
 		newTransaction.IsActive = true
 		newTransaction.Created = time.Now().Local()
@@ -118,7 +118,8 @@ func (book *Book) AddTransaction(currentUser *database.MasterUser, ReferenceID, 
 		}
 
 		// insert the new transaction detail to database
-		dbErr = book.AddTransactionDetail(currentUser, newTransaction.ID, PaymentMethodID, payment)
+		// status 0 cause its not yet approved/rejected by the transaction endpoint
+		dbErr = book.AddTransactionDetail(currentUser, 0, newTransaction.ID, PaymentMethodID, payment)
 
 		if dbErr != nil {
 			return dbErr
@@ -140,7 +141,7 @@ func (book *Book) AddTransaction(currentUser *database.MasterUser, ReferenceID, 
 }
 
 // AddTransactionDetail is a function to add transaction detail based on the given transaction entry
-func (book *Book) AddTransactionDetail(currentUser *database.MasterUser, trxID, PaymentMethodID uint, payment float64) error {
+func (book *Book) AddTransactionDetail(currentUser *database.MasterUser, status, trxID, PaymentMethodID uint, payment float64) error {
 
 	err := config.DB.Transaction(func(tx *gorm.DB) error {
 
@@ -150,6 +151,7 @@ func (book *Book) AddTransactionDetail(currentUser *database.MasterUser, trxID, 
 
 		newTransactionDetail.TrxID = trxID
 		newTransactionDetail.PaymentMethodID = PaymentMethodID
+		newTransactionDetail.Status = status
 		newTransactionDetail.Payment = payment
 		newTransactionDetail.IsActive = true
 		newTransactionDetail.Created = time.Now().Local()
@@ -159,6 +161,81 @@ func (book *Book) AddTransactionDetail(currentUser *database.MasterUser, trxID, 
 
 		// insert the new transaction detail to database
 		if dbErr = tx.Create(&newTransactionDetail).Error; dbErr != nil {
+			return dbErr
+		}
+
+		// return nil will commit the whole transaction
+		return nil
+
+	})
+
+	// if transaction error
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+
+}
+
+// UpdateTransaction is a function to update transaction based on the given transaction entry
+func (book *Book) UpdateTransaction(currentUser *database.MasterUser, targetTransaction *database.DBTransaction) error {
+
+	err := config.DB.Transaction(func(tx *gorm.DB) error {
+
+		// set variables
+		var updateTransaction database.DBTransaction
+		var dbErr error
+
+		updateTransaction.PaidOff = targetTransaction.PaidOff
+		updateTransaction.MustPay = targetTransaction.MustPay
+		updateTransaction.IsActive = targetTransaction.IsActive
+		updateTransaction.Modified = time.Now().Local()
+		updateTransaction.ModifiedBy = currentUser.Username
+
+		// update the transaction
+		dbErr = config.DB.Save(updateTransaction).Error
+
+		if dbErr != nil {
+			return dbErr
+		}
+
+		// return nil will commit the whole transaction
+		return nil
+
+	})
+
+	// if transaction error
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+
+}
+
+// UpdateTransactionDetail is a function to update transaction detail based on the given transaction entry
+func (book *Book) UpdateTransactionDetail(currentUser *database.MasterUser, targetTransactionDetail *database.DBTransactionDetail) error {
+
+	err := config.DB.Transaction(func(tx *gorm.DB) error {
+
+		// set variables
+		var updateTransactionDetail database.DBTransactionDetail
+		var dbErr error
+
+		updateTransactionDetail.PaymentMethodID = targetTransactionDetail.PaymentMethodID
+		updateTransactionDetail.Status = targetTransactionDetail.Status
+		updateTransactionDetail.Payment = targetTransactionDetail.Payment
+		updateTransactionDetail.IsActive = targetTransactionDetail.IsActive
+		updateTransactionDetail.Modified = time.Now().Local()
+		updateTransactionDetail.ModifiedBy = currentUser.Username
+
+		// update the transaction detail
+		dbErr = config.DB.Save(updateTransactionDetail).Error
+
+		if dbErr != nil {
 			return dbErr
 		}
 

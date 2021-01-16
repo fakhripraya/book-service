@@ -21,6 +21,7 @@ type DBTransactionDetail struct {
 	ID              uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	TrxID           uint      `gorm:"not null" json:"trx_id"`
 	PaymentMethodID uint      `gorm:"not null" json:"payment_method_id"`
+	Status          uint      `gorm:"not null" json:"status"`
 	Payment         float64   `gorm:"not null" json:"Payment"`
 	IsActive        bool      `gorm:"default:true" json:"is_active"`
 	Created         time.Time `gorm:"type:datetime" json:"created"`
