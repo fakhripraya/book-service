@@ -26,6 +26,16 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 		return
 	}
 
+	// TODO: buat dokumentasi
+	// 1 adalah user biasa
+	// 2 adalah owner
+	if currentUser.RoleID != 2 {
+		rw.WriteHeader(http.StatusBadRequest)
+		data.ToJSON(&GenericError{Message: err.Error()}, rw)
+
+		return
+	}
+
 	// proceed to create the new approval with transaction scope
 	err = config.DB.Transaction(func(tx *gorm.DB) error {
 
@@ -33,12 +43,14 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 		var targetBook database.DBTransactionRoomBook
 		var dbErr error
 
+		// look for the requested book
 		if dbErr := config.DB.Where("id = ?", approvalReq.BookID).First(&targetBook).Error; err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 
 			return dbErr
 		}
 
+		// TODO: buat dokumentasi
 		// Status 1 = approved by owner
 		// Status 3 = rejected
 		if approvalReq.FlagApproval == true {
@@ -107,22 +119,26 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 		var targetTransactionDetail database.DBTransactionDetail
 		var dbErr error
 
+		// look for the requested book
 		if dbErr := config.DB.Where("id = ?", approvalReq.BookID).First(&targetBook).Error; err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 
 			return dbErr
 		}
 
+		// look for the base transaction
 		if dbErr := config.DB.Where("trx_reference_id = ?", targetBook.ID).First(&targetTransaction).Error; err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 
 			return dbErr
 		}
 
+		// look for the base transaction detail
 		if dbErr := config.DB.Where("trx_id = ?", targetTransaction.ID).First(&targetTransactionDetail).Error; dbErr != nil {
 			return dbErr
 		}
 
+		// TODO: buat dokumentasi
 		// Status 2 = approved by user
 		// Status 3 = rejected
 		if approvalReq.FlagApproval == true {
@@ -142,7 +158,6 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 			return dbErr
 		}
 
-		// Status 1 = approved
 		// TODO: tanyain lagi booknya gmn
 		if approvalReq.FlagApproval == true {
 			targetTransaction.PaidOff = targetTransaction.PaidOff + targetTransactionDetail.Payment
@@ -184,6 +199,7 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 
 	// TODO: send notif
 
+	// send status ok if reach this point
 	rw.WriteHeader(http.StatusOK)
 	if approvalReq.FlagApproval == true {
 		data.ToJSON(&GenericError{Message: "Sukses Approve booking"}, rw)

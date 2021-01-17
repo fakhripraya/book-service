@@ -2,6 +2,7 @@ package data
 
 import (
 	"crypto/rand"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -48,7 +49,7 @@ func (book *Book) GetCurrentUser(rw http.ResponseWriter, r *http.Request, store 
 	if session.Values["userLoggedin"] == nil {
 		rw.WriteHeader(http.StatusUnauthorized)
 
-		return nil, err
+		return nil, fmt.Errorf("Error 401")
 	}
 
 	// work with database
@@ -93,86 +94,52 @@ func (book *Book) GenerateCode(codeType, country, city string) (string, error) {
 
 }
 
-// AddTransaction is a function to add transaction based on the given transaction entry
-func (book *Book) AddTransaction(currentUser *database.MasterUser, ReferenceID, PaymentMethodID, category uint, payment, mustPay float64) error {
+// AddTransaction is a function to add transaction based on the given transaction entry, this transaction is not scoped
+func (book *Book) AddTransaction(currentUser *database.MasterUser, ReferenceID, TrxCategory uint, mustPay float64) (uint, error) {
 
-	err := config.DB.Transaction(func(tx *gorm.DB) error {
+	// set variables
+	var newTransaction database.DBTransaction
+	var dbErr error
 
-		// set variables
-		var newTransaction database.DBTransaction
-		var dbErr error
+	newTransaction.TrxReferenceID = ReferenceID
+	newTransaction.TrxCategory = TrxCategory // kategori booking
+	newTransaction.PaidOff = 0               // paid off masih 0 karna transaksi baru
+	newTransaction.MustPay = mustPay
+	newTransaction.IsActive = true
+	newTransaction.Created = time.Now().Local()
+	newTransaction.CreatedBy = currentUser.Username
+	newTransaction.Modified = time.Now().Local()
+	newTransaction.ModifiedBy = currentUser.Username
 
-		newTransaction.TrxReferenceID = ReferenceID
-		newTransaction.TrxCategory = 0 // kategori booking
-		newTransaction.PaidOff = 0     // paid off masih 0 karna transaksi baru
-		newTransaction.MustPay = mustPay
-		newTransaction.IsActive = true
-		newTransaction.Created = time.Now().Local()
-		newTransaction.CreatedBy = currentUser.Username
-		newTransaction.Modified = time.Now().Local()
-		newTransaction.ModifiedBy = currentUser.Username
-
-		// insert the new transaction to database
-		if dbErr = tx.Create(&newTransaction).Error; dbErr != nil {
-			return dbErr
-		}
-
-		// insert the new transaction detail to database
-		// status 0 cause its not yet approved/rejected by the transaction endpoint
-		dbErr = book.AddTransactionDetail(currentUser, 0, newTransaction.ID, PaymentMethodID, payment)
-
-		if dbErr != nil {
-			return dbErr
-		}
-
-		// return nil will commit the whole transaction
-		return nil
-
-	})
-
-	// if transaction error
-	if err != nil {
-
-		return err
+	// insert the new transaction to database
+	if dbErr = config.DB.Create(&newTransaction).Error; dbErr != nil {
+		return 0, dbErr
 	}
 
-	return nil
+	return newTransaction.ID, nil
 
 }
 
-// AddTransactionDetail is a function to add transaction detail based on the given transaction entry
+// AddTransactionDetail is a function to add transaction detail based on the given transaction entry, this transaction is not scoped
 func (book *Book) AddTransactionDetail(currentUser *database.MasterUser, status, trxID, PaymentMethodID uint, payment float64) error {
 
-	err := config.DB.Transaction(func(tx *gorm.DB) error {
+	// set variables
+	var newTransactionDetail database.DBTransactionDetail
+	var dbErr error
 
-		// set variables
-		var newTransactionDetail database.DBTransactionDetail
-		var dbErr error
+	newTransactionDetail.TrxID = trxID
+	newTransactionDetail.PaymentMethodID = PaymentMethodID
+	newTransactionDetail.Status = status
+	newTransactionDetail.Payment = payment
+	newTransactionDetail.IsActive = true
+	newTransactionDetail.Created = time.Now().Local()
+	newTransactionDetail.CreatedBy = currentUser.Username
+	newTransactionDetail.Modified = time.Now().Local()
+	newTransactionDetail.ModifiedBy = currentUser.Username
 
-		newTransactionDetail.TrxID = trxID
-		newTransactionDetail.PaymentMethodID = PaymentMethodID
-		newTransactionDetail.Status = status
-		newTransactionDetail.Payment = payment
-		newTransactionDetail.IsActive = true
-		newTransactionDetail.Created = time.Now().Local()
-		newTransactionDetail.CreatedBy = currentUser.Username
-		newTransactionDetail.Modified = time.Now().Local()
-		newTransactionDetail.ModifiedBy = currentUser.Username
-
-		// insert the new transaction detail to database
-		if dbErr = tx.Create(&newTransactionDetail).Error; dbErr != nil {
-			return dbErr
-		}
-
-		// return nil will commit the whole transaction
-		return nil
-
-	})
-
-	// if transaction error
-	if err != nil {
-
-		return err
+	// insert the new transaction detail to database
+	if dbErr = config.DB.Create(&newTransactionDetail).Error; dbErr != nil {
+		return dbErr
 	}
 
 	return nil
@@ -257,6 +224,7 @@ func (book *Book) UpdateTransactionDetail(currentUser *database.MasterUser, targ
 // AddRoomBookMember is a function to add book member based on the given book entity
 func (book *Book) AddRoomBookMember(currentUser *database.MasterUser, roomBookID uint, targetRoomBookMember *entities.TransactionRoomBookMember) error {
 
+	// add the room book member to the database with transaction scope
 	err := config.DB.Transaction(func(tx *gorm.DB) error {
 
 		// set variables
@@ -276,7 +244,7 @@ func (book *Book) AddRoomBookMember(currentUser *database.MasterUser, roomBookID
 			return dbErr
 		}
 
-		// add the room book member details to the database
+		// add the room book member details to the database with transaction scope
 		dbErr = tx.Transaction(func(tx2 *gorm.DB) error {
 
 			// create the variable specific to the nested transaction

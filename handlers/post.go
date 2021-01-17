@@ -34,6 +34,7 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 		var kostTarget database.DBKost
 		var dbErr error
 
+		// look for the target kost to book
 		if dbErr = config.DB.Where("kost_id = ?", newBook.KostID).First(&kostTarget).Error; err != nil {
 			return dbErr
 		}
@@ -57,6 +58,7 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 		newBook.Modified = time.Now().Local()
 		newBook.ModifiedBy = currentUser.Username
 
+		// create the new book
 		if dbErr = tx.Create(&newBook).Error; dbErr != nil {
 			return dbErr
 		}
@@ -68,14 +70,35 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 			return dbErr
 		}
 
-		// add the base transaction to the database
-		dbErr = bookHandler.book.AddTransaction(currentUser, newBook.ID, 0, bookReq.PaymentMethodID, bookReq.Payment, bookReq.MustPay) // TODO: 0 adalah kategori, bikin dokumentasi ntr
+		// add the base transaction to the database with transaction scope
+		dbErr = config.DB.Transaction(func(tx *gorm.DB) error {
+
+			var dbErr2 error
+
+			// add the base transaction to the database
+			var trxID uint
+			trxID, dbErr2 = bookHandler.book.AddTransaction(currentUser, newBook.ID, 0, bookReq.MustPay) // TODO: 0 adalah kategori, bikin dokumentasi ntr
+
+			if dbErr2 != nil {
+				return dbErr2
+			}
+
+			// insert the new transaction detail to database
+			// status 0 cause its not yet approved/rejected by the transaction endpoint
+			dbErr2 = bookHandler.book.AddTransactionDetail(currentUser, 0, trxID, bookReq.PaymentMethodID, bookReq.Payment)
+
+			if dbErr2 != nil {
+				return dbErr2
+			}
+
+			// return nil will commit the whole transaction
+			return nil
+		})
 
 		if dbErr != nil {
 			return dbErr
 		}
 
-		// return nil will commit the whole transaction
 		return nil
 
 	})
@@ -88,6 +111,7 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// return status ok if reach this point
 	rw.WriteHeader(http.StatusOK)
 	data.ToJSON(&GenericError{Message: "Sukses request booking"}, rw)
 	return

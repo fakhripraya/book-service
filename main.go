@@ -103,7 +103,7 @@ func main() {
 	// get handlers
 	getRequest := serveMux.Methods(http.MethodGet).Subrouter()
 
-	// get kost handlers
+	// get book handlers
 	getRequest.HandleFunc("/", bookHandler.GetMyBook)
 	getRequest.HandleFunc("/all", bookHandler.GetMyBookList)
 
