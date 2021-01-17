@@ -29,3 +29,13 @@ type DBTransactionDetail struct {
 	Modified        time.Time `gorm:"type:datetime" json:"modified"`
 	ModifiedBy      string    `json:"modified_by"`
 }
+
+// DBTransactionTable set the migrated struct table name
+func (masterPaymentMethod *MasterPaymentMethod) DBTransactionTable() string {
+	return "dbTransaction"
+}
+
+// DBTransactionDetailTable set the migrated struct table name
+func (masterPaymentMethod *MasterPaymentMethod) DBTransactionDetailTable() string {
+	return "dbTransactionDetail"
+}

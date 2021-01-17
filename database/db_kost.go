@@ -16,8 +16,8 @@ type DBKost struct {
 	UpRate        uint64    `json:"up_rate"`
 	UpRateExpired time.Time `json:"up_rate_expired"`
 	Rate          float64   `json:"rate"`
-	IsVerified    bool      `gorm:"not null;default:false" json:"is_verified"`
 	ThumbnailURL  string    `json:"thumbnail_url"`
+	IsVerified    bool      `gorm:"not null;default:false" json:"is_verified"`
 	IsActive      bool      `gorm:"not null;default:true" json:"is_active"`
 	Created       time.Time `gorm:"type:datetime" json:"created"`
 	CreatedBy     string    `json:"created_by"`
@@ -98,6 +98,7 @@ type DBKostFacilities struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	FacID      uint      `gorm:"not null" json:"fac_id"`
 	KostID     uint      `gorm:"not null" json:"kost_id"`
+	IsActive   bool      `gorm:"not null;default:true" json:"is_active"`
 	Created    time.Time `gorm:"type:datetime" json:"created"`
 	CreatedBy  string    `json:"created_by"`
 	Modified   time.Time `gorm:"type:datetime" json:"modified"`

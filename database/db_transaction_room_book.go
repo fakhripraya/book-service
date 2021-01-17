@@ -20,7 +20,7 @@ type DBTransactionRoomBook struct {
 	ModifiedBy   string    `json:"modified_by"`
 }
 
-// DBTransactionRoomBookMember is an entity to communicate with the DBTransactionRoomBookMember client side
+// DBTransactionRoomBookMember is an entity that directly communicate with the TransactionRoomBookMember table in the database
 type DBTransactionRoomBookMember struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	RoomBookID uint      `gorm:"not null" json:"room_book_id"`
@@ -32,7 +32,7 @@ type DBTransactionRoomBookMember struct {
 	ModifiedBy string    `json:"modified_by"`
 }
 
-// DBTransactionRoomBookMemberDetail is an entity to communicate with the DBTransactionRoomBookMemberDetail client side
+// DBTransactionRoomBookMemberDetail is an entity that directly communicate with the TransactionRoomBookMemberDetail table in the database
 type DBTransactionRoomBookMemberDetail struct {
 	ID               uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	RoomBookMemberID uint      `gorm:"not null" json:"room_book_member_id"`
@@ -44,4 +44,19 @@ type DBTransactionRoomBookMemberDetail struct {
 	CreatedBy        string    `json:"created_by"`
 	Modified         time.Time `gorm:"type:datetime" json:"modified"`
 	ModifiedBy       string    `json:"modified_by"`
+}
+
+// DBTransactionRoomBookTable set the migrated struct table name
+func (masterPaymentMethod *MasterPaymentMethod) DBTransactionRoomBookTable() string {
+	return "dbTransactionRoomBook"
+}
+
+// DBTransactionRoomBookMemberTable set the migrated struct table name
+func (masterPaymentMethod *MasterPaymentMethod) DBTransactionRoomBookMemberTable() string {
+	return "dbTransactionRoomBookMember"
+}
+
+// DBTransactionRoomBookMemberDetailTable set the migrated struct table name
+func (masterPaymentMethod *MasterPaymentMethod) DBTransactionRoomBookMemberDetailTable() string {
+	return "dbTransactionRoomBookMemberDetail"
 }
