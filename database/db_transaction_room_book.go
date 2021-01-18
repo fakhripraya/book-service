@@ -24,7 +24,9 @@ type DBTransactionRoomBook struct {
 type DBTransactionRoomBookMember struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	RoomBookID uint      `gorm:"not null" json:"room_book_id"`
-	TenantID   uint      `gorm:"not null" json:"tenant_id"`
+	MemberName string    `gorm:"not null" json:"member_name"`
+	Phone      string    `json:"phone"`
+	Gender     bool      `gorm:"not null" json:"gender"`
 	IsActive   bool      `gorm:"default:true" json:"is_active"`
 	Created    time.Time `gorm:"type:datetime" json:"created"`
 	CreatedBy  string    `json:"created_by"`
@@ -32,31 +34,12 @@ type DBTransactionRoomBookMember struct {
 	ModifiedBy string    `json:"modified_by"`
 }
 
-// DBTransactionRoomBookMemberDetail is an entity that directly communicate with the TransactionRoomBookMemberDetail table in the database
-type DBTransactionRoomBookMemberDetail struct {
-	ID               uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
-	RoomBookMemberID uint      `gorm:"not null" json:"room_book_member_id"`
-	MemberName       string    `gorm:"not null" json:"member_name"`
-	Phone            string    `json:"phone"`
-	Gender           bool      `gorm:"not null" json:"gender"`
-	IsActive         bool      `gorm:"default:true" json:"is_active"`
-	Created          time.Time `gorm:"type:datetime" json:"created"`
-	CreatedBy        string    `json:"created_by"`
-	Modified         time.Time `gorm:"type:datetime" json:"modified"`
-	ModifiedBy       string    `json:"modified_by"`
-}
-
 // DBTransactionRoomBookTable set the migrated struct table name
-func (masterPaymentMethod *MasterPaymentMethod) DBTransactionRoomBookTable() string {
+func (dbTransactionRoomBook *DBTransactionRoomBook) DBTransactionRoomBookTable() string {
 	return "dbTransactionRoomBook"
 }
 
 // DBTransactionRoomBookMemberTable set the migrated struct table name
-func (masterPaymentMethod *MasterPaymentMethod) DBTransactionRoomBookMemberTable() string {
+func (dbTransactionRoomBookMember *DBTransactionRoomBookMember) DBTransactionRoomBookMemberTable() string {
 	return "dbTransactionRoomBookMember"
-}
-
-// DBTransactionRoomBookMemberDetailTable set the migrated struct table name
-func (masterPaymentMethod *MasterPaymentMethod) DBTransactionRoomBookMemberDetailTable() string {
-	return "dbTransactionRoomBookMemberDetail"
 }

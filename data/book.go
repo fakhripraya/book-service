@@ -222,57 +222,27 @@ func (book *Book) UpdateTransactionDetail(currentUser *database.MasterUser, targ
 }
 
 // AddRoomBookMember is a function to add book member based on the given book entity
-func (book *Book) AddRoomBookMember(currentUser *database.MasterUser, roomBookID uint, targetRoomBookMember *entities.TransactionRoomBookMember) error {
+func (book *Book) AddRoomBookMember(currentUser *database.MasterUser, roomBookID uint, targetRoomBookMember []entities.TransactionRoomBookMember) error {
 
 	// add the room book member to the database with transaction scope
 	err := config.DB.Transaction(func(tx *gorm.DB) error {
 
-		// set variables
-		var newBookMember database.DBTransactionRoomBookMember
+		// set variable
 		var dbErr error
+		var newRoomBookMember = targetRoomBookMember
 
-		newBookMember.RoomBookID = roomBookID
-		newBookMember.TenantID = targetRoomBookMember.TenantID
-		newBookMember.IsActive = true
-		newBookMember.Created = time.Now().Local()
-		newBookMember.CreatedBy = currentUser.Username
-		newBookMember.Modified = time.Now().Local()
-		newBookMember.ModifiedBy = currentUser.Username
-
-		// insert the new room book member to database
-		if dbErr = tx.Create(&newBookMember).Error; dbErr != nil {
-			return dbErr
+		// add the room book id to the slices
+		for i := range newRoomBookMember {
+			(&newRoomBookMember[i]).RoomBookID = roomBookID
+			(&newRoomBookMember[i]).IsActive = true
+			(&newRoomBookMember[i]).Created = time.Now().Local()
+			(&newRoomBookMember[i]).CreatedBy = currentUser.Username
+			(&newRoomBookMember[i]).Modified = time.Now().Local()
+			(&newRoomBookMember[i]).ModifiedBy = currentUser.Username
 		}
 
-		// add the room book member details to the database with transaction scope
-		dbErr = tx.Transaction(func(tx2 *gorm.DB) error {
-
-			// create the variable specific to the nested transaction
-			var dbErr2 error
-			var newRoomBookMemberDetail = targetRoomBookMember.Members
-
-			// add the room book member id to the slices
-			for i := range newRoomBookMemberDetail {
-				(&newRoomBookMemberDetail[i]).RoomBookMemberID = newBookMember.ID
-				(&newRoomBookMemberDetail[i]).IsActive = true
-				(&newRoomBookMemberDetail[i]).Created = time.Now().Local()
-				(&newRoomBookMemberDetail[i]).CreatedBy = currentUser.Username
-				(&newRoomBookMemberDetail[i]).Modified = time.Now().Local()
-				(&newRoomBookMemberDetail[i]).ModifiedBy = currentUser.Username
-			}
-
-			// insert the new room book member details to database
-			if dbErr2 = tx2.Create(&newRoomBookMemberDetail).Error; dbErr2 != nil {
-				return dbErr2
-			}
-
-			// return nil will commit the whole nested transaction
-			return nil
-		})
-
-		// if transaction error
-		if dbErr != nil {
-
+		// insert the new room book member to database
+		if dbErr = tx.Create(&newRoomBookMember).Error; dbErr != nil {
 			return dbErr
 		}
 

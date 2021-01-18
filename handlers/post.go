@@ -64,7 +64,7 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 		}
 
 		// add the room book member to the database
-		dbErr = bookHandler.book.AddRoomBookMember(currentUser, newBook.ID, &bookReq.TrxBookMember)
+		dbErr = bookHandler.book.AddRoomBookMember(currentUser, newBook.ID, bookReq.Members)
 
 		if dbErr != nil {
 			return dbErr
