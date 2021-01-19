@@ -9,7 +9,7 @@ type DBTransaction struct {
 	TrxCategory    uint      `gorm:"not null" json:"trx_category"` // kategori transaksi (bayar kost, bayar perpanjang, dll)
 	PaidOff        float64   `gorm:"not null" json:"paid_off"`
 	MustPay        float64   `gorm:"not null" json:"must_pay"`
-	IsActive       bool      `gorm:"default:true" json:"is_active"`
+	IsActive       bool      `gorm:"not null;default:true" json:"is_active"`
 	Created        time.Time `gorm:"type:datetime" json:"created"`
 	CreatedBy      string    `json:"created_by"`
 	Modified       time.Time `gorm:"type:datetime" json:"modified"`
@@ -23,7 +23,7 @@ type DBTransactionDetail struct {
 	PaymentMethodID uint      `gorm:"not null" json:"payment_method_id"`
 	Status          uint      `gorm:"not null" json:"status"`
 	Payment         float64   `gorm:"not null" json:"Payment"`
-	IsActive        bool      `gorm:"default:true" json:"is_active"`
+	IsActive        bool      `gorm:"not null;default:true" json:"is_active"`
 	Created         time.Time `gorm:"type:datetime" json:"created"`
 	CreatedBy       string    `json:"created_by"`
 	Modified        time.Time `gorm:"type:datetime" json:"modified"`

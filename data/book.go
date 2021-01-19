@@ -259,3 +259,41 @@ func (book *Book) AddRoomBookMember(currentUser *database.MasterUser, roomBookID
 
 	return nil
 }
+
+// AddVerificationPhoto is a function to add verification photo based on the given book entity
+func (book *Book) AddVerificationPhoto(currentUser *database.MasterUser, referenceID uint, targetVerification entities.TransactionVerification) error {
+
+	// add the new transaction verification photo to the database with transaction scope
+	err := config.DB.Transaction(func(tx *gorm.DB) error {
+
+		// set variable
+		var dbErr error
+		var newVerification database.DBTransactionVerification
+
+		newVerification.ReferenceID = referenceID
+		newVerification.PictDesc = targetVerification.PictDesc
+		newVerification.URL = targetVerification.URL
+		newVerification.IsActive = true
+		newVerification.Created = time.Now().Local()
+		newVerification.CreatedBy = currentUser.Username
+		newVerification.Modified = time.Now().Local()
+		newVerification.ModifiedBy = currentUser.Username
+
+		// insert the new transaction verification photo to database
+		if dbErr = tx.Create(&newVerification).Error; dbErr != nil {
+			return dbErr
+		}
+
+		// return nil will commit the whole transaction
+		return nil
+
+	})
+
+	// if transaction error
+	if err != nil {
+
+		return err
+	}
+
+	return nil
+}

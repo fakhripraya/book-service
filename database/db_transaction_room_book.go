@@ -13,7 +13,7 @@ type DBTransactionRoomBook struct {
 	Status       uint      `gorm:"not null" json:"status"`
 	BookCode     string    `gorm:"not null" json:"book_code"`
 	BookDate     time.Time `gorm:"not null" json:"book_date"`
-	IsActive     bool      `gorm:"default:true" json:"is_active"`
+	IsActive     bool      `gorm:"not null;default:true" json:"is_active"`
 	Created      time.Time `gorm:"type:datetime" json:"created"`
 	CreatedBy    string    `json:"created_by"`
 	Modified     time.Time `gorm:"type:datetime" json:"modified"`
@@ -27,11 +27,24 @@ type DBTransactionRoomBookMember struct {
 	MemberName string    `gorm:"not null" json:"member_name"`
 	Phone      string    `json:"phone"`
 	Gender     bool      `gorm:"not null" json:"gender"`
-	IsActive   bool      `gorm:"default:true" json:"is_active"`
+	IsActive   bool      `gorm:"not null;default:true" json:"is_active"`
 	Created    time.Time `gorm:"type:datetime" json:"created"`
 	CreatedBy  string    `json:"created_by"`
 	Modified   time.Time `gorm:"type:datetime" json:"modified"`
 	ModifiedBy string    `json:"modified_by"`
+}
+
+// DBTransactionVerification is an entity that directly communicate with the DBTransactionVerification table in the database
+type DBTransactionVerification struct {
+	ID          uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
+	ReferenceID uint      `gorm:"not null" json:"reference_id"`
+	PictDesc    string    `gorm:"not null" json:"pict_desc"`
+	URL         string    `gorm:"not null" json:"url"`
+	IsActive    bool      `gorm:"not null;default:true" json:"is_active"`
+	Created     time.Time `gorm:"type:datetime" json:"created"`
+	CreatedBy   string    `json:"created_by"`
+	Modified    time.Time `gorm:"type:datetime" json:"modified"`
+	ModifiedBy  string    `json:"modified_by"`
 }
 
 // DBTransactionRoomBookTable set the migrated struct table name
@@ -42,4 +55,9 @@ func (dbTransactionRoomBook *DBTransactionRoomBook) DBTransactionRoomBookTable()
 // DBTransactionRoomBookMemberTable set the migrated struct table name
 func (dbTransactionRoomBookMember *DBTransactionRoomBookMember) DBTransactionRoomBookMemberTable() string {
 	return "dbTransactionRoomBookMember"
+}
+
+// DBTransactionVerificationTable set the migrated struct table name
+func (dbTransactionVerification *DBTransactionVerification) DBTransactionVerificationTable() string {
+	return "dbTransactionVerification"
 }

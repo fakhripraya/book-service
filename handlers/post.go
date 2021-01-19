@@ -63,6 +63,13 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 			return dbErr
 		}
 
+		// add the verification data to the database
+		dbErr = bookHandler.book.AddVerificationPhoto(currentUser, newBook.ID, bookReq.VerificationData)
+
+		if dbErr != nil {
+			return dbErr
+		}
+
 		// add the room book member to the database
 		dbErr = bookHandler.book.AddRoomBookMember(currentUser, newBook.ID, bookReq.Members)
 
