@@ -13,6 +13,8 @@ type DBKost struct {
 	Country       string    `gorm:"not null" json:"country"`
 	City          string    `gorm:"not null" json:"city"`
 	Address       string    `gorm:"not null" json:"address"`
+	Latitude      string    `gorm:"not null" json:"latitude"`
+	Longitude     string    `gorm:"not null" json:"longitude"`
 	UpRate        uint64    `json:"up_rate"`
 	UpRateExpired time.Time `json:"up_rate_expired"`
 	Rate          float64   `json:"rate"`
