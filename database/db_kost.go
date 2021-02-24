@@ -2,7 +2,7 @@ package database
 
 import "time"
 
-// DBKost is an entity that directly communicate with the Kost table in the database
+// DBKost will migrate a kost table with the given specification into the database
 type DBKost struct {
 	ID            uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	OwnerID       uint      `gorm:"not null" json:"owner_id"`
@@ -17,7 +17,6 @@ type DBKost struct {
 	Longitude     string    `gorm:"not null" json:"longitude"`
 	UpRate        uint64    `json:"up_rate"`
 	UpRateExpired time.Time `json:"up_rate_expired"`
-	Rate          float64   `json:"rate"`
 	ThumbnailURL  string    `json:"thumbnail_url"`
 	IsVerified    bool      `gorm:"not null;default:false" json:"is_verified"`
 	IsActive      bool      `gorm:"not null;default:true" json:"is_active"`
@@ -27,7 +26,7 @@ type DBKost struct {
 	ModifiedBy    string    `json:"modified_by"`
 }
 
-// DBKostPeriod is an entity that directly communicate with the Kost period table in the database
+// DBKostPeriod will migrate a kost period table with the given specification into the database
 type DBKostPeriod struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	KostID     uint      `gorm:"not null" json:"kost_id"`
@@ -39,7 +38,7 @@ type DBKostPeriod struct {
 	ModifiedBy string    `json:"modified_by"`
 }
 
-// DBKostPict is an entity that directly communicate with the KostPict table in the database
+// DBKostPict will migrate a kost pict table with the given specification into the database
 type DBKostPict struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	KostID     uint      `gorm:"not null" json:"kost_id"`
@@ -52,7 +51,7 @@ type DBKostPict struct {
 	ModifiedBy string    `json:"modified_by"`
 }
 
-// DBKostRoom is an entity that directly communicate with the KostRoom table in the database
+// DBKostRoom will migrate a kost room table with the given specification into the database
 type DBKostRoom struct {
 	ID           uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	KostID       uint      `gorm:"not null" json:"kost_id"`
@@ -70,7 +69,7 @@ type DBKostRoom struct {
 	ModifiedBy   string    `json:"modified_by"`
 }
 
-// DBKostRoomDetail is an entity that directly communicate with the KostRoomDetail table in the database
+// DBKostRoomDetail will migrate a kost room table with the given specification into the database
 type DBKostRoomDetail struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	RoomID     uint      `gorm:"not null" json:"room_id"`
@@ -82,7 +81,7 @@ type DBKostRoomDetail struct {
 	ModifiedBy string    `json:"modified_by"`
 }
 
-// DBKostRoomPict is an entity that directly communicate with the KostRoomPict table in the database
+// DBKostRoomPict will migrate a kost room pict table with the given specification into the database
 type DBKostRoomPict struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	RoomID     uint      `gorm:"not null" json:"room_id"`
@@ -95,7 +94,7 @@ type DBKostRoomPict struct {
 	ModifiedBy string    `json:"modified_by"`
 }
 
-// DBKostFacilities is an entity that directly communicate with the KostFacilities table in the database
+// DBKostFacilities will migrate a kost facilities table with the given specification into the database
 type DBKostFacilities struct {
 	ID         uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
 	FacID      uint      `gorm:"not null" json:"fac_id"`
@@ -105,6 +104,22 @@ type DBKostFacilities struct {
 	CreatedBy  string    `json:"created_by"`
 	Modified   time.Time `gorm:"type:datetime" json:"modified"`
 	ModifiedBy string    `json:"modified_by"`
+}
+
+// DBKostReview will migrate a kost review table with the given specification into the database
+type DBKostReview struct {
+	ID          uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
+	KostID      uint      `gorm:"not null" json:"owner_id"`
+	UserID      uint      `gorm:"not null" json:"user_id"`
+	Cleanliness float64   `json:"cleanliness"`
+	Convenience float64   `json:"convenience"`
+	Security    float64   `json:"security"`
+	Facilities  float64   `json:"facilities"`
+	IsActive    bool      `gorm:"not null;default:true" json:"is_active"`
+	Created     time.Time `gorm:"type:datetime" json:"created"`
+	CreatedBy   string    `json:"created_by"`
+	Modified    time.Time `gorm:"type:datetime" json:"modified"`
+	ModifiedBy  string    `json:"modified_by"`
 }
 
 // KostTable set the migrated struct table name
@@ -140,4 +155,9 @@ func (dbKostRoomPict *DBKostRoomPict) KostRoomPictTable() string {
 // KostFacilitiesTable set the migrated struct table name
 func (dbKostFacilities *DBKostFacilities) KostFacilitiesTable() string {
 	return "dbKostFacilities"
+}
+
+// KostReviewTable set the migrated struct table name
+func (dbKostReview *DBKostReview) KostReviewTable() string {
+	return "dbKostReview"
 }
