@@ -14,6 +14,7 @@ import (
 // AddBook is a method to add the new given book info to the database
 func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request) {
 
+	//TODO: Bikin validasi bila kamar sudah di book
 	// get the book via context
 	bookReq := r.Context().Value(KeyBook{}).(*entities.TransactionRoomBook)
 
@@ -35,7 +36,7 @@ func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request)
 		var dbErr error
 
 		// look for the target kost to book
-		if dbErr = config.DB.Where("kost_id = ?", newBook.KostID).First(&kostTarget).Error; err != nil {
+		if dbErr = config.DB.Where("id = ?", bookReq.KostID).First(&kostTarget).Error; err != nil {
 			return dbErr
 		}
 

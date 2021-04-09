@@ -222,7 +222,7 @@ func (book *Book) UpdateTransactionDetail(currentUser *database.MasterUser, targ
 }
 
 // AddRoomBookMember is a function to add book member based on the given book entity
-func (book *Book) AddRoomBookMember(currentUser *database.MasterUser, roomBookID uint, targetRoomBookMember []entities.TransactionRoomBookMember) error {
+func (book *Book) AddRoomBookMember(currentUser *database.MasterUser, roomBookID uint, targetRoomBookMember []database.DBTransactionRoomBookMember) error {
 
 	// add the room book member to the database with transaction scope
 	err := config.DB.Transaction(func(tx *gorm.DB) error {

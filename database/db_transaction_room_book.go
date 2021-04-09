@@ -34,19 +34,6 @@ type DBTransactionRoomBookMember struct {
 	ModifiedBy string    `json:"modified_by"`
 }
 
-// DBTransactionVerification is an entity that directly communicate with the DBTransactionVerification table in the database
-type DBTransactionVerification struct {
-	ID          uint      `gorm:"primary_key;autoIncrement;not null" json:"id"`
-	ReferenceID uint      `gorm:"not null" json:"reference_id"`
-	PictDesc    string    `gorm:"not null" json:"pict_desc"`
-	URL         string    `gorm:"not null" json:"url"`
-	IsActive    bool      `gorm:"not null;default:true" json:"is_active"`
-	Created     time.Time `gorm:"type:datetime" json:"created"`
-	CreatedBy   string    `json:"created_by"`
-	Modified    time.Time `gorm:"type:datetime" json:"modified"`
-	ModifiedBy  string    `json:"modified_by"`
-}
-
 // DBTransactionRoomBookTable set the migrated struct table name
 func (dbTransactionRoomBook *DBTransactionRoomBook) DBTransactionRoomBookTable() string {
 	return "dbTransactionRoomBook"
@@ -55,9 +42,4 @@ func (dbTransactionRoomBook *DBTransactionRoomBook) DBTransactionRoomBookTable()
 // DBTransactionRoomBookMemberTable set the migrated struct table name
 func (dbTransactionRoomBookMember *DBTransactionRoomBookMember) DBTransactionRoomBookMemberTable() string {
 	return "dbTransactionRoomBookMember"
-}
-
-// DBTransactionVerificationTable set the migrated struct table name
-func (dbTransactionVerification *DBTransactionVerification) DBTransactionVerificationTable() string {
-	return "dbTransactionVerification"
 }
