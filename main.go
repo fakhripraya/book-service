@@ -113,13 +113,26 @@ func main() {
 	// post handlers
 	postRequest := serveMux.Methods(http.MethodPost).Subrouter()
 
-	// post add new kost
+	// post add new book
 	postRequest.HandleFunc("/add", bookHandler.AddBook)
 
 	// post global middleware
 	postRequest.Use(
 		bookHandler.MiddlewareValidateAuth,
 		bookHandler.MiddlewareParseBookRequest,
+	)
+
+	// patch handlers
+	patchRequest := serveMux.Methods(http.MethodPatch).Subrouter()
+
+	// patch approve book
+	patchRequest.HandleFunc("/approve/owner", bookHandler.OwnerApprovalBookTransaction)
+	patchRequest.HandleFunc("/approve/tenant", bookHandler.TenantApprovalBookTransaction)
+
+	// patch global middleware
+	patchRequest.Use(
+		bookHandler.MiddlewareValidateAuth,
+		bookHandler.MiddlewareParseApprovalRequest,
 	)
 
 	// CORS

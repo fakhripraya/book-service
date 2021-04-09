@@ -152,18 +152,13 @@ func (book *Book) UpdateTransaction(currentUser *database.MasterUser, targetTran
 	err := config.DB.Transaction(func(tx *gorm.DB) error {
 
 		// set variables
-		var updateTransaction database.DBTransaction
 		var dbErr error
 
-		updateTransaction.PaidOff = targetTransaction.PaidOff
-		updateTransaction.MustPay = targetTransaction.MustPay
-		updateTransaction.IsActive = targetTransaction.IsActive
-		updateTransaction.Modified = time.Now().Local()
-		updateTransaction.ModifiedBy = currentUser.Username
+		targetTransaction.Modified = time.Now().Local()
+		targetTransaction.ModifiedBy = currentUser.Username
 
 		// update the transaction
-		dbErr = config.DB.Save(updateTransaction).Error
-
+		dbErr = config.DB.Where("id = ?", targetTransaction.ID).Save(&targetTransaction).Error
 		if dbErr != nil {
 			return dbErr
 		}
@@ -189,18 +184,13 @@ func (book *Book) UpdateTransactionDetail(currentUser *database.MasterUser, targ
 	err := config.DB.Transaction(func(tx *gorm.DB) error {
 
 		// set variables
-		var updateTransactionDetail database.DBTransactionDetail
 		var dbErr error
 
-		updateTransactionDetail.PaymentMethodID = targetTransactionDetail.PaymentMethodID
-		updateTransactionDetail.Status = targetTransactionDetail.Status
-		updateTransactionDetail.Payment = targetTransactionDetail.Payment
-		updateTransactionDetail.IsActive = targetTransactionDetail.IsActive
-		updateTransactionDetail.Modified = time.Now().Local()
-		updateTransactionDetail.ModifiedBy = currentUser.Username
+		targetTransactionDetail.Modified = time.Now().Local()
+		targetTransactionDetail.ModifiedBy = currentUser.Username
 
 		// update the transaction detail
-		dbErr = config.DB.Save(updateTransactionDetail).Error
+		dbErr = config.DB.Save(&targetTransactionDetail).Error
 
 		if dbErr != nil {
 			return dbErr

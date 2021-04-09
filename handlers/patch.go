@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -26,16 +27,6 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 		return
 	}
 
-	// TODO: buat dokumentasi
-	// 1 adalah user biasa
-	// 2 adalah owner
-	if currentUser.RoleID != 2 {
-		rw.WriteHeader(http.StatusBadRequest)
-		data.ToJSON(&GenericError{Message: err.Error()}, rw)
-
-		return
-	}
-
 	// proceed to create the new approval with transaction scope
 	err = config.DB.Transaction(func(tx *gorm.DB) error {
 
@@ -48,6 +39,27 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 			rw.WriteHeader(http.StatusBadRequest)
 
 			return dbErr
+		}
+
+		bookedKost := &database.DBKost{}
+		if dbErr := config.DB.Where("id = ?", targetBook.KostID).First(&bookedKost).Error; err != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
+			return dbErr
+		}
+
+		// occurs when transaction already been approved by the owner
+		if targetBook.Status != 0 {
+			rw.WriteHeader(http.StatusForbidden)
+
+			return fmt.Errorf("Status booking tidak valid untuk di approve")
+		}
+
+		// only owner can approve the book transaction in this method
+		if currentUser.ID != bookedKost.OwnerID {
+			rw.WriteHeader(http.StatusForbidden)
+
+			return fmt.Errorf("Hanya owner kost yang bisa approve book ini")
 		}
 
 		// TODO: buat dokumentasi
@@ -67,6 +79,8 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 		dbErr = config.DB.Save(targetBook).Error
 
 		if dbErr != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
 			return dbErr
 		}
 
@@ -76,15 +90,13 @@ func (bookHandler *BookHandler) OwnerApprovalBookTransaction(rw http.ResponseWri
 
 	// if transaction error
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
 		data.ToJSON(&GenericError{Message: err.Error()}, rw)
 
 		return
 	}
 
-	// TODO: send notif
+	// TODO: send notification
 
-	rw.WriteHeader(http.StatusOK)
 	if approvalReq.FlagApproval == true {
 		data.ToJSON(&GenericError{Message: "Sukses Approve booking"}, rw)
 	} else {
@@ -126,6 +138,20 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 			return dbErr
 		}
 
+		// occurs when transaction already been approved by the tenant
+		if targetBook.Status != 1 {
+			rw.WriteHeader(http.StatusForbidden)
+
+			return fmt.Errorf("Status booking tidak valid untuk di approve")
+		}
+
+		// only tenant can approve the book transaction in this method
+		if currentUser.ID != targetBook.BookerID {
+			rw.WriteHeader(http.StatusForbidden)
+
+			return fmt.Errorf("Hanya tenant kost yang bisa approve book ini")
+		}
+
 		// look for the base transaction
 		if dbErr := config.DB.Where("trx_reference_id = ?", targetBook.ID).First(&targetTransaction).Error; err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
@@ -135,6 +161,8 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 
 		// look for the base transaction detail
 		if dbErr := config.DB.Where("trx_id = ?", targetTransaction.ID).First(&targetTransactionDetail).Error; dbErr != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
 			return dbErr
 		}
 
@@ -155,6 +183,8 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 		dbErr = config.DB.Save(targetBook).Error
 
 		if dbErr != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
 			return dbErr
 		}
 
@@ -167,6 +197,8 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 		dbErr = bookHandler.book.UpdateTransaction(currentUser, &targetTransaction)
 
 		if dbErr != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
 			return dbErr
 		}
 
@@ -182,6 +214,8 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 		dbErr = bookHandler.book.UpdateTransactionDetail(currentUser, &targetTransactionDetail)
 
 		if dbErr != nil {
+			rw.WriteHeader(http.StatusBadRequest)
+
 			return dbErr
 		}
 
@@ -191,13 +225,12 @@ func (bookHandler *BookHandler) TenantApprovalBookTransaction(rw http.ResponseWr
 
 	// if transaction error
 	if err != nil {
-		rw.WriteHeader(http.StatusBadRequest)
 		data.ToJSON(&GenericError{Message: err.Error()}, rw)
 
 		return
 	}
 
-	// TODO: send notif
+	// TODO: send notification
 
 	// send status ok if reach this point
 	rw.WriteHeader(http.StatusOK)

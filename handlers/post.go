@@ -15,6 +15,7 @@ import (
 func (bookHandler *BookHandler) AddBook(rw http.ResponseWriter, r *http.Request) {
 
 	//TODO: Bikin validasi bila kamar sudah di book
+	//TODO: Bikin validasi tidak bisa book bila kost milik user(dia ownernya)
 	// get the book via context
 	bookReq := r.Context().Value(KeyBook{}).(*entities.TransactionRoomBook)
 
